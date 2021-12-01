@@ -1,0 +1,129 @@
+<div class="modal-wrapper" id="add-user-modal">
+    <div class="modal">
+        <a href="#" onclick="closeModal()" class="modal-close">+</a>
+        <div class="modal-title">
+            <h2>Create New User</h2>
+        </div>
+        <div class="modal-body">
+            <!-- 🟡jehetu eita ekta form .. So , amader ke jehetu multipart akare jehetu file upload korte hobe .. tahole
+            form amader ke multipart akare .. POST korte hobe -->
+            <form id="add-user-form" method="post" action="/users" enctype="multipart/form-data">
+                <input type="text" placeholder="enter name" name="name" />
+                <p class="error show name-error">This is error</p>
+                <!-- jeno oi class related kono error ashle, error ta jeno ami show korte pari-->
+                <input type="text" placeholder="enter email" name="email" />
+                <p class="error show email-error"></p>
+                <input type="text" placeholder="enter mobile" name="mobile" />
+                <p class="error show mobile-error"></p>
+                <input type="password" placeholder="enter password" name="password" />
+                <p class="error show password-error"></p>
+                <input type="file" name="avatar" />
+                <p class="error show avatar-error"></p>
+
+                <p class="error show common-error"></p> <!-- kono common error thakle ekhane dekhabe -->
+
+                <input type="submit" value="Submit" />
+
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script>
+    const modal = document.querySelector("#add-user-modal");
+    const form = document.querySelector("#add-user-form");
+    function closeModal() {
+        modal.style.display = "none";
+    }
+    function openModal() {
+        modal.style.display = "block";
+    }
+
+    // success toast // notification akare ki dekhate chai and sheta kotokkhon stay
+    // korbe .. sheta bole dibo .. // https://apvarun.github.io/toastify-js/#
+    const successToast = Toastify({
+        text: "User was added successfully! Reloading the list... ",
+        duration: 1000,
+    });
+
+    // form submit handler
+    // amra jehetu AJAX request pathabo .. tai form er onSubmit e ekta handler ekhane likhte hobe .. 
+    form.onsubmit = async function (event) {
+        event: preventDefault(); // jeno form ta submit hoye reload na hoye jay .. 
+
+        // clear error first
+        const errorPlaceholders = document.querySelectorAll("p.error"); // paragraph tag er error gula ke dhorlam
+        for (let i = 0; i < errorPlaceholders.length; i++) {
+            errorPlaceholders[i].style.display = "none";
+        }
+
+        // input box er lal border gula ke remove kora .. input er moddhe error class gula
+        // remove korte hobe 
+
+        const inputErrors = document.querySelectorAll("input.error"); // input er error gula ke dhorlam
+        if (inputErrors.length > 0) {
+            for (let j = 0; j < inputErrors; j++) {
+                inputErrors[j].classList.remove("error");
+            }
+        }
+
+
+        //prepare the form data
+        const formData = new FormData(form); // html er FormData method call kore form data
+        // banabo ... data gula ke niye ekta object baniye dey .. 
+
+        // er pore amar kaj hocche sheta ke server e request hishebe pathano .. 
+        let response = await fetch("/users", {
+            method: "POST",
+            body: formData,
+        });
+
+        // finally amake response nite hobe .. 
+        let result = await response.json(); // amake response nite hobe .. fetch jeta dey
+        // sheta amake await kore nite hobe .. she json data dey na .. dot json call kore
+        // json baniye nite hoy .. 
+
+        // handle error and response 
+        if (result.errors) {
+            // errors ta backend theke ashbe may be ..
+            Object.keys(result.errors).forEach((fieldName) => {
+                // make error visible to User Interface
+                // add error class to all inputs 
+                form[fieldName].classList.add("error");
+
+                // set all error placeholders (p tag) textContent
+
+                //css class ke query selector dia dhorlam .. erpor textContent dia 
+                // tar vitorer content change korlam
+
+                const errorPlaceholder = document.querySelector(`.${fieldName}-error`);
+                errorPlaceholder.textContent = result.errors[fieldName].msg;
+
+                // by default error gula hide ase ... shegula ke visible korte hobe 
+                // make all placeholders visible
+                errorPlaceholder.style.display = "block";
+
+                // protita field er jonnoi ei function ta loop korse .. ekta ekta kore
+
+
+
+            });
+        } else {
+            //success toast ta call korlam
+            successToast.showToast();
+            closeModal(); // shob thik thak thakle Modal ta ke close kore dibo 
+
+            // jotogula red error ase shob gula ke none kore disi .. 
+            document.querySelector("p.error").style.display = "none";
+
+            // 1 second pore reload kore dibo
+
+            setTimeout(() => {
+                location.reload(); // page ta ke reload kore dilam 
+            }, 1000);
+        }
+    };
+</script>
+</body>
+
+</html>

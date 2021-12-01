@@ -1,7 +1,7 @@
 function decorateHtmlResponse(pageTitle) {
     return function (req, res, next) {
         res.locals.html = true;
-        res.locals.title = pageTitle`${pageTitle}- ${process.env.APP_NAME}`;
+        res.locals.title = `pageTitle ${pageTitle}- ${process.env.APP_NAME}`;
         next();
     };
 }

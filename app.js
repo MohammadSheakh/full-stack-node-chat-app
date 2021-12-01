@@ -55,7 +55,8 @@ mongoose
 
 // request parser -> amader application e jokhon kono request ashbe tokhon shegulake parse korte
 // hoy .. sheta json akare ashte pare .. form data hishebe ashte pare..
-app.use(express.json);
+
+app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // html template er moddhe form baniye .. shei form o handle korbo
 // extended : true // taile she amar query parameter gula o parse korte parbe ..
 
@@ -72,14 +73,14 @@ app.use(express.static(path.join(__dirname, "public"))); // ekhane amader public
 // 🔵 parse cookies // ekhon amake arekta middle wire use korte hobe ..jeta cookie parse korbe ..
 app.use(cookieParser(process.env.COOKIE_SECRET)); // ekta secret dite hoy .. amra signed cookie banabo .. signed cookie na baile deowa lage na ..
 /**
- * COOKIE_SECRET= wordpress salt generator -> theke SECURE_AUTH_KEY niye .. sheta abar http://www.sha1-online.com/ er
+ *  COOKIE_SECRET= wordpress salt generator -> theke SECURE_AUTH_KEY niye .. sheta abar http://www.sha1-online.com/ er
  *  maddhome hash kore nei .. eta ektu secure ... jekono kichui deowa jabe ..
  */
 
 // 🔵 routing setup
 app.use("/", loginRouter);
-// app.use("/users", usersRouter);
-// app.use("/inbox", inboxRouter);
+app.use("/users", usersRouter);
+app.use("/inbox", inboxRouter);
 
 // 🔵 404 not found handler
 // common middleware ta jekono route ei use hote pare ..
