@@ -8,10 +8,31 @@
     </div>
     <div id="login-form">
       <form method="post" action="/">
-        <input type="text" name="username" placeholder="enter mobile or email" value="" />
-        <p class="error show">Error message here</p>
-        <input type="password" name="password" placeholder="enter password" />
-        <input type="submit" value="Login" />
+        <!-- ei form ta kintu AJAX request pathabe na .. so nich e amader ke manually request pathate hobe na
+        ei page ta te ultimately amra land korbo .. jodi kono error thake .. tahole amader error placeholder e
+        boshiye dite hobe ar jodi thik thake .. tahole amader redirect kore dicche she automatically -->
+        <input type="text" name="username" placeholder="enter mobile or email" value="<%= data.username>" />
+        <% if (errors.username) {%>
+          <p class="error show">
+            <%= errors.username.msg %>
+          </p>
+          <% } %>
+            <input type="password" name="password" placeholder="enter password" />
+            <% if (errors.password) {%>
+              <p class="error show">
+                <%= errors.password.msg %>
+              </p>
+              <% } %>
+
+                <% if (errors.common) {%>
+                  <p class="error show">
+                    <%= errors.common.msg %>
+                  </p>
+                  <% } %>
+
+                    <!-- AJAX er belay javascript dia amra jei kaj ta korsilam .. sheta ebar amra if else dia kore felte parsi -->
+
+                    <input type="submit" value="Login" />
       </form>
     </div>
   </div>

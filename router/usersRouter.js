@@ -10,13 +10,19 @@ const {
     addUserValidationHandler,
     removeUser,
 } = require("../middlewares/users/userValidators");
+const { checkLogin } = require("../middlewares/common/checkLogin"); // jei Route ke ami protect korbo mane amar User page
+// shei User page e .. decorateHtmlResponse() first e call korechi middleware .. tarpore ami checkLogin ta ke call korbo
 
 const router = express.Router(); // Router create korlam ..
 
 // User related router thakbe ..
 
 //🔵User page
-router.get("/", decorateHtmlResponse("Users"), getUsers);
+router.get("/", decorateHtmlResponse("Users"), checkLogin, getUsers); // jei Route ke ami protect korbo mane amar User page
+// shei User page e .. decorateHtmlResponse() first e call korechi middleware .. tarpore ami checkLogin ta ke call korbo
+// decorateHtmlResponse ki korbe ? make sure korbe .. shob response.locals gula ke she default value dia set kore dibe
+// and html response ta ke true kore dibe .. tahole checkLogin jante parbe je amar ashole html response dite hobe
+// so she shei onujayi response dibe ..
 
 /**
  * notun ekta route banate hobe .. shei route ta process korbe . sheta hobe
@@ -34,9 +40,19 @@ router.get("/", decorateHtmlResponse("Users"), getUsers);
 
 //🔵 add user
 
+// amader login Guard ta kaj korse .. and eta kono ekta API URL keo protect korte parbe
+// jemon amar add User korar jei beparta .. ekhane kintu decorateHtmlResponse() nai .. tahole amra ki korte pari
+// eta keo kintu login guard deowar dorkar hote pare .. ekhaneo ami shob kichu korar age .. checkLogin guard
+// middleware hishebe diye dite pari ..
+
+// checkLogin ekhetreo shundor moto kaj korse .. kono error dekhay nai .. ei khetre checkLogin kintu AJAX request
+// handle korlo.. tar mane checkLogin amar jekono AJAX, mane kono JSON response dite hobe erokom kono Route eo amar
+// protect korbe .. abar jokhon amake HTML response dite hobe .. tokhon amake protect korbe ..
+
 // /url e post method e form e request pathai .. tahole ekhan theke amra response pabo .. file upload hobe .. validation hobe
 router.post(
     "/",
+    checkLogin,
     avatarUpload,
     addUserValidators,
     addUserValidationHandler,

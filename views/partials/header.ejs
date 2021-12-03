@@ -16,7 +16,46 @@
 
 <body>
     <div class="menu">
-        <div class="menu-item"><a href="/inbox">Inbox</a></div>
-        <div class="menu-item"><a href="/users">Users</a></div>
-        <div class="menu-item"><a href="/">Login</a></div>
+        <% if(loggedInUser && loggedInUser.username ) { %>
+            <div class="menu-item"><a href="/inbox">Inbox</a></div>
+            <div class="menu-item"><a href="/users">Users</a></div>
+            <div class="menu-item"><a href="/" onclick="logout()">Logout</a></div>
+            <% }else { %>
+                <div class="menu-item"><a href="/inbox">Inbox</a></div>
+                <div class="menu-item"><a href="/users">Users</a></div>
+                <div class="menu-item"><a href="/">Login</a></div>
+                <% } %>
     </div>
+
+    <script>
+
+        // toast
+        const logoutToast = Toastify({
+            text: "You are being logged out !",
+            duration: 1000,
+        });
+
+        //logout function
+        function logout() {
+            // amar kaj ki ? amar kaj hocche AJAX request pathano DELETE method e..
+            fetch("/", {
+                method: "DELETE",
+            });
+            // fetch dia Slash URL e DELETE method e  AJAX request pathiye dilam..  
+            // So she request pathaile browser theke cookie clear kore dibe .. 
+
+            // er pore definately ami ta ke kichu ekta dekhabo .. shejonno eta toast lagbe 
+            logoutToast.show();
+
+            // tarpor 1 second er ekta gap dia ami page ta ke reload kore dia .. amar slash index page e ami just
+            // redirect kore dilam .. tahole amar logged in user logged out hoye jabe .. 
+            setTimeout(() => {
+                window.location.replace("/");
+            }, 1000);
+
+
+            // ekhon amra Auth Guard ta banabo .. jekono Route.. jeta amra protect korte chai .. shetar age boshiye
+            // dilei oi route ta ke access korle hole .. oi User ke must logged in korte hobe .. ejonno ami 
+            // common middleware folder er moddhe checkLogin.js nam e ekta file e kaj korbo 
+        }
+    </script>
