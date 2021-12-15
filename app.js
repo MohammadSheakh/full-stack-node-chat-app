@@ -31,11 +31,22 @@ const usersRouter = require("./router/usersRouter");
 const inboxRouter = require("./router/inboxRouter");
 
 const app = express();
+const server = http.createServer(app);
 dotenv.config();
+
+// socket creation
+const io = require("socket.io")(server); // client er jerokom server er URL pass korte hoy
+// ekhane amake server er instance ta pass korte hoy .. amra kintu eto din app.express amader ke jei server er
+// instance ta dey .. shetai use korechilam ..but ei khane socket.io ei server er instance e kaj korbe na .. amake
+// node er je http module ase .. shei http.createServer() .. shekhan e app pass kore dile amra server instance pai
+global.io = io; // ei io ta to app.js e use korsi .. kintu ei io ta vitorer kono file e use korte hobe
+// tai node js er global object e set kore dilam... jekono file global.io dia ei io ta ke access korte parbe
+
+// client end e jerokom io.on dia amra listener boshiyechilam .. ekhane taile amader pathate hobe .. inboxController.js
 
 // ekhon amader database connection and middle-wire egula amader setup korte hoy ..
 
-// database connection
+// database connection // MONGO_CONNECTION_STRING = mongodb://localhost/chat eta localhost er jonno
 mongoose
     .connect(process.env.MONGO_CONNECTION_STRING, {
         useNewUrlParser: true, // egula dite hobe .. nahole error dey

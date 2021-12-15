@@ -2,7 +2,14 @@
 const express = require("express");
 
 //internal imports
-const { getInbox } = require("../controller/inboxController");
+const {
+    getInbox,
+    searchUser,
+    addConversation,
+    getMessage,
+    sendMessage,
+} = require("../controller/inboxController");
+const attachmentUpload = require("../middlewares/inbox/attachmentUpload");
 const decorateHtmlResponse = require("../middlewares/common/decorateHtmlResponse");
 const { checkLogin } = require("../middlewares/common/checkLogin"); // inbox page ke protect korar jonno checkLogin Guard
 // decorateHtml middleware er porer middleware hishebe boshiye dilam
@@ -24,5 +31,17 @@ const router = express.Router(); // Router create korlam ..
 
 // inbox page
 router.get("/", decorateHtmlResponse("Inbox"), checkLogin, getInbox);
+
+// search user for conversation
+router.post("/search", checkLogin, searchUser);
+
+// add conversation
+router.post("/conversation", checkLogin, addConversation);
+
+// get message of a conversation
+router.get("/message/:conversation_id", checkLogin, getMessage);
+
+// send message
+router.post("/message", checkLogin, attachmentUpload, sendMessage);
 
 module.exports = router;
