@@ -89,6 +89,36 @@ const redirectLoggedIn = function (req, res, next) {
     }
 };
 
+//🔵 require Role // guard to protect routes that need role based authorization
+function requireRole(role) {
+    // parameter hishebe receive korbe ekta array // ekhan theke ekta middleware function return kore diyechi ..
+    if (req.user.role && role.includes(req.user.role)) {
+        // req.user.role set korechi ager middleware e .. mane checkLogin e .. shei ta jodi thake ..
+        // checkLogin middleware e gele amra dekhbo .. cookie theke user information data ta ber kore ..
+        // req.user tar moddhe assign kore diyechilo .. req.user = decoded ;
+        // ar decoded jeta .. shetar moddhe ami set korechilam .. amra jodi login controller e jai ...
+        // shekhane login korar shomoy amra kintu jokhon ..  JWT token ta set korechilam data hishebe .. amra kintu
+        // user object er moddhe  role dia diyechilam ..
+        // tai req.user.role er moddhe logged in user er role ta amra pabo.. so ami dekhsi shei role ta set ase kina
+        // and shei role ta amar ei je parameter e role array ta esheche shetar moddhe ase kina ..
+        next(); //  next middleware e pass kore dilam ..
+    } else {
+        if (res.locals.html) {
+            next(
+                createError(401, "You are not authorized to access this page!")
+            );
+        } else {
+            res.status(401).json({
+                errors: {
+                    common: {
+                        msg: "You are not authorized to view this page !",
+                    },
+                },
+            });
+        }
+    }
+}
+
 // module.exports = checkLogin;
 module.exports = {
     checkLogin,

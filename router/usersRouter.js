@@ -18,7 +18,15 @@ const router = express.Router(); // Router create korlam ..
 // User related router thakbe ..
 
 //🔵User page
-router.get("/", decorateHtmlResponse("Users"), checkLogin, getUsers); // jei Route ke ami protect korbo mane amar User page
+// requireRole er parameter hishebe amra ekta array diyechi .. shei array er moddhe bole diyechi kon role ta allowed
+// comma dia multiple role deowa jay
+router.get(
+    "/",
+    decorateHtmlResponse("Users"),
+    checkLogin,
+    requireRole(["admin"]),
+    getUsers
+); // jei Route ke ami protect korbo mane amar User page
 // shei User page e .. decorateHtmlResponse() first e call korechi middleware .. tarpore ami checkLogin ta ke call korbo
 // decorateHtmlResponse ki korbe ? make sure korbe .. shob response.locals gula ke she default value dia set kore dibe
 // and html response ta ke true kore dibe .. tahole checkLogin jante parbe je amar ashole html response dite hobe
@@ -53,6 +61,7 @@ router.get("/", decorateHtmlResponse("Users"), checkLogin, getUsers); // jei Rou
 router.post(
     "/",
     checkLogin,
+    requireRole(["admin"]),
     avatarUpload,
     addUserValidators,
     addUserValidationHandler,

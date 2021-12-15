@@ -1,0 +1,150 @@
+<!-- ei modal er moddhe amader ki korte hobe .. ei khan e amader kono ekta user er nam dia search dite hobe ..
+jokhon e she search dibe .. tokhon e search deowa hoye gele.. tarpor e amra ekta request pathabo ..
+request pathiye amra amader user table theke ekta user khuje ber korbo -->
+<div class="modal-wrapper" id="add-conversation-modal">
+    <div class="modal">
+        <a onclick="closeModal()" class="modal-close">+</a>
+        <div class="modal-title">
+            <h2>Create New Conversation</h2>
+        </div>
+        <div class="modal-body">
+            <form id="add-conversation-form">
+                <input type="text" placeholder="search user by name or email or mobile " name="user" id="user"
+                    autocomplete="off" />
+                <p class="error"></p>
+                <div class="search_users"></div>
+                <input type="submit" value="Submit" class="hide" />
+                <!-- // 3: 24  -->
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    // notun conversation add korar jonno search er modal 
+    const modal = document.querySelector("#add-conversation-modal");
+    // typing detector
+    let typingTimer;
+    const doneTypingInterval = 500;
+    const input = document.querySelector("input#user");
+    const conversation_list = document.querySelector("#conversation-list");
+    let users_placeholder = document.querySelector(".search_users");
+
+    // conversation created failure toast
+    const conversationFailureToast = Toastify({
+        text: "Error Creating a Conversation !",
+        duration: 1000,
+    });
+
+    function closeModal() {
+        modal.style.display = "none";
+
+        //reset
+        users_placeholder.style.display = "none";
+        input.value = "";
+    }
+    function openModal() {
+        modal.style.display = "block";
+    }
+
+    // on keyup, start the countdown
+    input.addEventListener("keyup", function () {
+        clearTimeout(typingTimer); // lekha jokhon thamiye dicchi .. tokhon ekta timer chalu korchi .. 
+        // ager timer close kore dicchi .. jehetu eta continuous process.. 
+
+        // reset
+        users_placeholder.style.display = "none";
+
+        if (input.value) {
+            // notun ekta timer set korsi .. 
+            typingTimer = setTimeout(search_users, doneTypingInterval); // user is "finished typing, " send search request
+            // 500 ml second jodi user theme thake .. tahole tar pore ami request pathai .. tar age pathai na ..
+        }
+    });
+
+    // on keydown, clear the countdown
+    input.addEventListener("keydown", function () {
+        clearTimeout(typingTimer);
+        // keydown hoile timer ta ke close kore dei ... 
+    });
+
+    // send request for search
+    async function searchUsers() {
+        let response = await fetch("/inbox/search", {
+            method: "POST", // jei method e search korbo .. 
+            body: JSON.stringify({ user: input.value }), // jei value pathaite hobe .. search korar jonno 
+            headers: { "content-type": "application/json; charset=UTF-8" },
+        });
+
+        // get response
+        let result = await response.JSON();
+
+        // handle error and response
+        if (result.errors) {
+            // error hole 
+            const errorplaceholder = document.querySelector("p.error");
+            errorplaceholder.textContent = result.errors.common.msg;
+            errorplaceholder.style.display = "block";
+        } else {
+            // successful hole ei block kaj korbe .. mane kichu user peyechi 
+            if (result.length > 0) {
+                let generatedHtml = "<ul>";
+                result.forEach((user) => {
+                    const avatar = user.avatar ? "../../public/uploads/avatars/" + user.avatar : "../../public/images/nophoto.png";
+                    generatedHtml = generatedHtml
+                        + ` <li onclick="createConversation(${user._id} , ${user.name} , ${user.avatar} )"> 
+                            <div class="user">
+                                <div class="avatar">
+                                    <img src="${avatar}"/>
+                                </div>
+                                <div class="username">${user.name}</div>
+                            </div>
+                        </li>`;
+                });
+                generatedHtml = generatedHtml + "</ul>";
+                users_placeholder.innerHTML = generatedHtml;
+                users_placeholder.style.display = "block";
+            }
+        }
+    }
+
+    // create conversation  // user er id , name, avatar pathiye diyechi .. 
+    async function createConversation(participant_id, name, avatar) {
+        try {
+            // conversation add korar URL e hit korechi .. // Model related... 
+            const response = await fetch("/inbox/conversation", {
+                // conversation model onujayi ei URL e jokhon hit hocche tokhon ei information gula ami 
+                // pathiye dicchi .. shegula save hocche .. save hoye ultimately she page ta ke reload korbe .. 
+                method: "POST",
+                body: JSON.stringify({
+                    participant: name,
+                    id: participant_id,
+                    avatar: avatar !== "undefined" ? avatar : null,
+                }),
+                headers: {
+                    "content-type": "application/json; charset=UTF-8",
+                },
+            });
+
+            const result = response.json();
+
+            if (!result.errors) {
+                //reset
+                users_placeholder.style.display = "none";
+                input.value = name;
+
+                // reload the page after 1 second 
+                setTimeout(() => {
+                    // ei je ekhane reload hocche 
+                    location.reload();
+                }, 1000);
+            } else {
+                throw new Error(result.errors.common.msg);
+            }
+
+        } catch (err) {
+            conversationFailureToast.showToast();
+        }
+    };
+
+
+</script>
